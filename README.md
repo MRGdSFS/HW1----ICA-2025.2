@@ -1,1 +1,1 @@
-# HW1----Intelig-ncia-Computacional-Aplicada
+# HW1----Inteligência-Computacional-Aplicada
