@@ -67,7 +67,9 @@ def categorizar_performance(df):
     df['Performance'] = np.select(conditions, choices, default="Indefinido")
     return df
 
-df = carregar_dados("/home/natan/Área de trabalho/HW1-ICA/dados/student_habits_performance.csv")
+proj_root = os.path.abspath(os.path.join(os.getcwd(), ".."))
+caminho_csv = os.path.join(proj_root, "dados", "student_habits_performance.csv")
+df = carregar_dados(caminho_csv)
 
 #a partir daqui a variável exam_score está dividida em 4 grupos e não possui uma barra pra cada valor como as outras variáveis categóricas
 df = categorizar_performance(df)
