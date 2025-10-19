@@ -30,6 +30,16 @@ def remover_duplicatas(df: pd.DataFrame) -> pd.DataFrame:
         print("Nenhuma linha duplicada encontrada.")
         return df
 
+def remover_outliers(df, coluna):
+    Q1 = df[coluna].quantile(0.25)
+    Q3 = df[coluna].quantile(0.75)
+    IQR = Q3 - Q1
+    lim_inf = Q1 - 1.5 * IQR
+    lim_sup = Q3 + 1.5 * IQR
+
+    df_sem_outliers = df[(df[coluna] >= lim_inf) & (df[coluna] <= lim_sup)]
+    return df_sem_outliers
+
 def discretizar_variavel_alvo(df: pd.DataFrame) -> pd.DataFrame:
     df_discretizado = df.copy()
     bins = [0, 40, 70, 90, 101]
