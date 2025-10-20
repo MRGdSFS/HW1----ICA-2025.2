@@ -68,6 +68,47 @@ def estatisticas_descritivas_qualitativas(df: pd.DataFrame, colunas: list) -> di
      #Ao final teremos um dicionário de dataframes onde cada dataframe tem uma contagem e uma proporção, e cada dataframe está associado a uma coluna que veio do parâmetro da função.
      return resultados
 
+#  Aqui vamos calcular estatísticas descritivas (média, desvio padrão e assimetria) para cada variável quantitativa para cada classe de desempenho.
+def estatisticas_condicionais_por_classe_especifica(df: pd.DataFrame, colunas_quantitativas: list, classes: list, coluna_classe: str = 'performance_class') -> pd.DataFrame:
+    """
+    Calcula estatísticas descritivas para variáveis quantitativas APENAS para as classes especificadas.
+    
+    Parâmetros:
+    df: DataFrame com os dados
+    colunas_quantitativas: Lista de variáveis quantitativas
+    classes: Lista das classes específicas que você quer analisar (ex: ['Reprovado', 'Recuperação'])
+    coluna_classe: Nome da coluna que define as classes (padrão: 'performance_class')
+    
+    Retorna:
+    DataFrame com estatísticas apenas para as classes solicitadas
+    """
+    resultados = []
+    
+    # Para cada variável quantitativa
+    for var in colunas_quantitativas:
+        # Para cada classe ESPECÍFICA fornecida no parâmetro
+        for classe in classes:
+            # Filtra os dados para a classe específica
+            dados_classe = df[df[coluna_classe] == classe][var].dropna()
+            
+            # Calcula as estatísticas
+            n_obs = len(dados_classe)
+            media = dados_classe.mean()
+            desvio_padrao = dados_classe.std()
+            assimetria = dados_classe.skew()
+            
+            # Adiciona ao resultado
+            resultados.append({
+                'Variável': var,
+                'Classe': classe,
+                'N_observações': n_obs,
+                'Média': media,
+                'Desvio_Padrão': desvio_padrao,
+                'Assimetria': assimetria
+            })
+    
+    return pd.DataFrame(resultados)
+
 #Esta função vai plotar vários gráficos para vermos de uma vez
 def plot_matriz_univariada_quantitativa(df: pd.DataFrame, colunas: list) -> None:
     
