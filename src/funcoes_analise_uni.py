@@ -68,6 +68,47 @@ def estatisticas_descritivas_qualitativas(df: pd.DataFrame, colunas: list) -> di
      #Ao final teremos um dicionário de dataframes onde cada dataframe tem uma contagem e uma proporção, e cada dataframe está associado a uma coluna que veio do parâmetro da função.
      return resultados
 
+#  Aqui vamos calcular estatísticas descritivas (média, desvio padrão e assimetria) para cada variável quantitativa para cada classe de desempenho.
+def estatisticas_condicionais_por_classe_especifica(df: pd.DataFrame, colunas_quantitativas: list, classes: list, coluna_classe: str = 'performance_class') -> pd.DataFrame:
+    """
+    Calcula estatísticas descritivas para variáveis quantitativas APENAS para as classes especificadas.
+    
+    Parâmetros:
+    df: DataFrame com os dados
+    colunas_quantitativas: Lista de variáveis quantitativas
+    classes: Lista das classes específicas que você quer analisar (ex: ['Reprovado', 'Recuperação'])
+    coluna_classe: Nome da coluna que define as classes (padrão: 'performance_class')
+    
+    Retorna:
+    DataFrame com estatísticas apenas para as classes solicitadas
+    """
+    resultados = []
+    
+    # Para cada variável quantitativa
+    for var in colunas_quantitativas:
+        # Para cada classe ESPECÍFICA fornecida no parâmetro
+        for classe in classes:
+            # Filtra os dados para a classe específica
+            dados_classe = df[df[coluna_classe] == classe][var].dropna()
+            
+            # Calcula as estatísticas
+            n_obs = len(dados_classe)
+            media = dados_classe.mean()
+            desvio_padrao = dados_classe.std()
+            assimetria = dados_classe.skew()
+            
+            # Adiciona ao resultado
+            resultados.append({
+                'Variável': var,
+                'Classe': classe,
+                'N_observações': n_obs,
+                'Média': media,
+                'Desvio_Padrão': desvio_padrao,
+                'Assimetria': assimetria
+            })
+    
+    return pd.DataFrame(resultados)
+
 #Esta função vai plotar vários gráficos para vermos de uma vez
 def plot_matriz_univariada_quantitativa(df: pd.DataFrame, colunas: list) -> None:
     
@@ -146,7 +187,8 @@ def plot_matriz_condicional_quantitativa(df: pd.DataFrame, colunas_quant: list, 
     #Vamos mudar um pouco da lógica feita nas incondicionais devido a quantidade de gráficos que irão aparecer aqui, se usassemos o flatten() ficaria muito confuso,
     # já que a gente perderia a noção visual por linha e coluna então é melhor uma outra abordagem:
 
-    classes = df[coluna_alvo].unique()# Retorna valores únicos da coluna alvo.
+    # Retorna valores únicos da coluna alvo garantindo ordem consistente das classes.
+    classes = list(df[coluna_alvo].dropna().unique())
 
     for coluna in colunas_quant:
         # Cria a figura de 1 linha para boxplot e 1 linha pra histogramas.
@@ -154,17 +196,21 @@ def plot_matriz_condicional_quantitativa(df: pd.DataFrame, colunas_quant: list, 
             
         # Boxplots.
         subs1 = plt.subplot2grid((2, len(classes)), (0, 0), colspan=len(classes))
-        sns.boxplot(x=coluna_alvo, y=coluna, data=df, ax=subs1)
+        sns.boxplot(x=coluna_alvo, y=coluna, data=df, ax=subs1, order=classes)
         subs1.set_title(f'{coluna} por {coluna_alvo}')
         subs1.set_xlabel(coluna_alvo)
         subs1.set_ylabel(coluna)
 
-         # Histogramas.
+        # Histogramas.
         for i, classe in enumerate(classes):
-            subs = plt.subplot2grid((2, len(classes)), (1, i))# Função que permite o posicionamento preciso.
-            subset = df[df[coluna_alvo] == classe]
-            subs.hist(subset[coluna], bins=10, density=True)
-            sns.kdeplot(subset[coluna], ax=subs)
+            subs = plt.subplot2grid((2, len(classes)), (1, i))  # Função que permite o posicionamento preciso.
+            subset = df[df[coluna_alvo] == classe][coluna].dropna()
+            if subset.empty:
+                # evita erro se não houver dados para uma classe
+                subs.set_visible(False)
+                continue
+            subs.hist(subset, bins=10, density=True)
+            sns.kdeplot(subset, ax=subs)
             subs.set_title(f'{coluna} - {classe}')
             subs.set_xlabel(coluna)
             subs.set_ylabel('Densidade')
@@ -172,6 +218,7 @@ def plot_matriz_condicional_quantitativa(df: pd.DataFrame, colunas_quant: list, 
         plt.suptitle(f'Análise Condicional - {coluna}', fontsize=14, y=1.02)
         plt.tight_layout()
         plt.show()
+        plt.close(fig)
 
 # Agora a qualitativa condicional:
 def plot_matriz_condicional_qualitativa(df: pd.DataFrame, colunas_qual: list, coluna_alvo: str) -> None:
@@ -205,7 +252,7 @@ def plot_matriz_condicional_qualitativa(df: pd.DataFrame, colunas_qual: list, co
     plt.show()
 
 # Esta função vai realizar a análise univariada incondicional e condicional, separando as variáveis, calculando as estatísticas e plotando as matrizes de gráficos desta análise.
-# Recebe como parâmetros o dataframe processados, o dicionário de dados e o nome da variável alvo pra análise condicional.
+# Recebe como parâmetros o dataframe processados, o dicionário de dados e o nome da variável alvo pra análise condicional caso você queira ver tudo de uma vez.
 def executar_analise_univariada_completa(df: pd.DataFrame, df_dict: pd.DataFrame, coluna_alvo: str = 'performance_class') -> None:
 
     quantitativas, qualitativas = separar_variaveis(df_dict)
@@ -226,20 +273,20 @@ def executar_analise_univariada_completa(df: pd.DataFrame, df_dict: pd.DataFrame
         
     
     print("\n[GRÁFICOS] Matriz de Gráficos Univariados Quantitativos (Histograma e Boxplot):")
-    # Aqui, teremos uma matriz com 14 gráficos.
+    # Aqui, teremos uma matriz com gráficos.
     plot_matriz_univariada_quantitativa(df, quantitativas)
     
     
     print("\n[GRÁFICOS] Matriz de Gráficos Univariados Qualitativos (Gráfico de Barras):")
-    # Aqui, teremos 7 gráficos.
+    # Aqui, teremos gráficos.
     plot_matriz_univariada_qualitativa(df, qualitativas)
     
     print("\n--- 2. Análise Univariada Condicional (Relação com a Variável Alvo) ---")
     
     print(f"\n[GRÁFICOS] Matriz de Boxplots Condicionais (Variáveis Quantitativas vs {coluna_alvo}):")
-    # Gera a matriz de 7 boxplots.
+    # Gera a matriz de boxplots.
     plot_matriz_condicional_quantitativa(df, quantitativas, coluna_alvo)
     
     print(f"\n[GRÁFICOS] Matriz de Gráficos de Contagem Condicionais (Variáveis Qualitativas vs {coluna_alvo}):")
-    # Gera a matriz de 7 countplots.
+    # Gera a matriz de countplots.
     plot_matriz_condicional_qualitativa(df, qualitativas, coluna_alvo)
