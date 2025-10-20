@@ -22,7 +22,7 @@ def separar_variaveis(df_dict: pd.DataFrame) -> tuple:
 
 
     # Aqui, tiramos as variáveis que não serão usadas na análise univariada, ou seja, a que não contribui como preditor (student_id), 
-    # a nossa variável alvo (exam_score) e a que será usada na análise condicional. 
+    # a nossa variável alvo (exam_score) e a que será usada na análise condicional(perfomance_class). 
     if 'student_id' in qualitativas:
         qualitativas.remove('student_id')
 
@@ -40,7 +40,7 @@ def estatisticas_descritivas_quantitativas(df: pd.DataFrame, colunas: list) -> p
      
      # Vamos usar a função agg da pandas para realizar 1-contagem dos valores, 2-encontrar o mínimo, 3-encontrar o máximo,4-calcular a média, 5-calcular a mediana,
      # 6-calcular o desvio padrão, 7-calcular a skewness (assimetria). Depois, usa o .T pra transpostar a coluna pra uma linha para deixar mais agradável aos olhos.
-     estatisticas = df[colunas].agg(['count', 'min', 'max', 'mean', 'median', 'std', skew]).T
+     estatisticas = df[colunas].agg(['count', 'min', 'max', 'mean', 'median', 'std', 'skew']).T
 
     # Mudando os nomes para português:
      estatisticas.columns = ['Contagem', 'Mínimo', 'Máximo', 'Média', 'Mediana', 'Desvio Padrão', 'Assimetria']
@@ -143,33 +143,35 @@ def plot_matriz_univariada_qualitativa(df: pd.DataFrame, colunas: list) -> None:
 # Agora vamos implementar as funções da análise univariada condicional (às categorias reprovado, recuperação, bom e excelente)  
 def plot_matriz_condicional_quantitativa(df: pd.DataFrame, colunas_quant: list, coluna_alvo: str) -> None: # Aqui passamos como parâmetro o nome da coluna alvo como a perfomance_class.
 
-    # Lógica parecida com as anteriores
-    # Ajeitando o formato da figura:
-    n_vars = len(colunas_quant)
-    n_plots = n_vars
-    
-    n_cols = 3
-    n_rows = math.ceil(n_plots / n_cols)
-    
-    fig, subs = plt.subplots(n_rows, n_cols, figsize=(6 * n_cols, 5 * n_rows))
-    subs = subs.flatten()
+    #Vamos mudar um pouco da lógica feita nas incondicionais devido a quantidade de gráficos que irão aparecer aqui, se usassemos o flatten() ficaria muito confuso,
+    # já que a gente perderia a noção visual por linha e coluna então é melhor uma outra abordagem:
 
-    # Fazendo os boxplots e deixando eles organizados na figura:
-    for i, coluna in enumerate(colunas_quant):
-        sns.boxplot(x=coluna_alvo, y=coluna, data=df, ax=subs[i])
-        subs[i].set_title(f'{coluna} por {coluna_alvo}', fontsize=10)
-        subs[i].set_xlabel(coluna_alvo, fontsize=8)
-        subs[i].set_ylabel(coluna, fontsize=8)
-        subs[i].tick_params(axis='x', rotation=45)
-    # Escolhemos fazer apenas o boxplots devido a abrangência da análise feita pelos boxplots (comparação de mediana, dispersão e outliers),
-    # se não teríamos 28 histogramas pras 7 variáveis quantitativas + os boxplots e isso ficaria uma quantidade enorme de gráficos na matriz.
+    classes = df[coluna_alvo].unique()# Retorna valores únicos da coluna alvo.
 
-    for j in range(n_plots, n_rows * n_cols):
-        fig.delaxes(subs[j])
-        
-    plt.suptitle(f'Análise Univariada Condicional - Quantitativas vs {coluna_alvo}', fontsize=16, y=1.02)
-    plt.tight_layout()
-    plt.show()
+    for coluna in colunas_quant:
+        # Cria a figura de 1 linha para boxplot e 1 linha pra histogramas.
+        fig = plt.figure(figsize=(16, 8))
+            
+        # Boxplots.
+        subs1 = plt.subplot2grid((2, len(classes)), (0, 0), colspan=len(classes))
+        sns.boxplot(x=coluna_alvo, y=coluna, data=df, ax=subs1)
+        subs1.set_title(f'{coluna} por {coluna_alvo}')
+        subs1.set_xlabel(coluna_alvo)
+        subs1.set_ylabel(coluna)
+
+         # Histogramas.
+        for i, classe in enumerate(classes):
+            subs = plt.subplot2grid((2, len(classes)), (1, i))# Função que permite o posicionamento preciso.
+            subset = df[df[coluna_alvo] == classe]
+            subs.hist(subset[coluna], bins=10, density=True)
+            sns.kdeplot(subset[coluna], ax=subs)
+            subs.set_title(f'{coluna} - {classe}')
+            subs.set_xlabel(coluna)
+            subs.set_ylabel('Densidade')
+
+        plt.suptitle(f'Análise Condicional - {coluna}', fontsize=14, y=1.02)
+        plt.tight_layout()
+        plt.show()
 
 # Agora a qualitativa condicional:
 def plot_matriz_condicional_qualitativa(df: pd.DataFrame, colunas_qual: list, coluna_alvo: str) -> None:
