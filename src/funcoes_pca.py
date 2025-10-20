@@ -4,9 +4,9 @@ import mpl_axes_aligner
 
 
 def biplot(df_pca: pd.DataFrame, df_loads: pd.DataFrame) -> None:
-
+    #são criados subplots
     fig,ax = plt.subplots(figsize=(15,8))
-
+    #gráfico de dispersão PC1xPC2
     ax.scatter(df_pca.PC1.values,df_pca.PC2.values, color='b')
     ax.set_xlabel("PC1", fontsize = 10)
     ax.set_ylabel("PC2", fontsize = 10)
@@ -15,14 +15,14 @@ def biplot(df_pca: pd.DataFrame, df_loads: pd.DataFrame) -> None:
     ax.axhline(0, color='gray', linewidth=0.8)
     ax.axvline(0, color='gray', linewidth=0.8)
 
-
+    #aqui é criado um segundo eixo
     ax2 = ax.twinx().twiny()
-
+    #ajuste de fonte
     font = {'color': 'g',
             'weight': 'bold',
             'size': 5,
             }
-    
+    #dicionário para melhorar a visualização dos nomes das features no gráfico
     colunas = {
     "study_hours_per_day": "Horas de Estudo", "social_media_hours": "Redes Sociais", "netflix_hours": "Netflix",
     "attendance_percentage": "Presença(%)", "sleep_hours": "Horas de Sono", "exercise_frequency": "Frequência de Exerc.",
@@ -33,13 +33,14 @@ def biplot(df_pca: pd.DataFrame, df_loads: pd.DataFrame) -> None:
     "extracurricular_participation_Yes": "Extracurricular", "age": "Idade"
     
     }
+    #definção das setas e do texto de acordo com os loadings do PCA
     for col in df_loads.columns.values:
         tipx = df_loads.loc['PC1',col]
         tipy = df_loads.loc['PC2',col]
 
         ax2.arrow(0, 0, tipx, tipy, color = 'r', alpha = 0.5)
         ax2.text(tipx*1.05, tipy*1.05, colunas[col], fontdict = font, ha = 'center', va = 'center')
-    
+    #alinhamento do texto e setas
     mpl_axes_aligner.align.xaxes(ax, 0, ax2, 0, 0.5)
     mpl_axes_aligner.align.yaxes(ax, 0, ax2, 0, 0.5)
 
