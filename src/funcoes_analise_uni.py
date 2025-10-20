@@ -7,7 +7,6 @@ from scipy.stats import skew
 import math
 from IPython.display import display
 
-import funcoes_pre_processamento as pp
 
 # Esta função irá separar nossas variáveis entre quantitativas e qualitativas,
 # ela tem como argumento o dataframe que contém o dicionário de dados e retorna uma tupla (nesse caso, duas listas).
