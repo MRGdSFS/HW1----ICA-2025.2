@@ -1,7 +1,7 @@
 # HW1---Inteligência-Computacional-Aplicada
 
 ## 1. Objetivos e necessidades
-Compreender os fatores que influenciam no sucesso acadêmico é uma etapa essencial na construção de medidas para melhorar a educação e o desempenho dos estudantes. Nesse projeto, será analisado, de forma detalhada, um conjunto de dados sintéticos chamado ”Student Habits vs Academic Performance”, advindos da plataforma Kaggle.
+Compreender os fatores que influenciam no sucesso acadêmico é uma etapa essencial na construção de medidas para melhorar a educação e o desempenho dos estudantes. Neste projeto, será analisado, de forma detalhada, um conjunto de dados sintéticos chamado ”Student Habits vs Academic Performance”, advindos da plataforma Kaggle.
 
 - Você pode acessar o dataset aqui:
 [Dataset Student Habits vs Academic Performance ](https://www.kaggle.com/datasets/jayaantanaath/student-habits-vs-academic-performance).
