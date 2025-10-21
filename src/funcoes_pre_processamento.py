@@ -5,9 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import skew
 
-# ==========================
-# CARREGAR DADOS
-# ==========================
+
 def carregar_dados(caminho_ou_url: str) -> pd.DataFrame:
     try:
         df = pd.read_csv(caminho_ou_url)
@@ -17,9 +15,7 @@ def carregar_dados(caminho_ou_url: str) -> pd.DataFrame:
         print(f"Erro ao carregar os dados: {e}")
         return None
 
-# ==========================
-# TRATAR NULOS (NUMÉRICA = MÉDIA | CATEGÓRICA = MODA)
-# ==========================
+
 def tratar_dados_faltantes(df: pd.DataFrame) -> pd.DataFrame:
     df_tratado = df.copy()
 
@@ -35,9 +31,7 @@ def tratar_dados_faltantes(df: pd.DataFrame) -> pd.DataFrame:
                 print(f"Nulos em '{coluna}' preenchidos com MODA: '{moda}'")
     return df_tratado
 
-# ==========================
-# REMOVER DUPLICATAS
-# ==========================
+
 def remover_duplicatas(df: pd.DataFrame) -> pd.DataFrame:
     duplicatas = df.duplicated().sum()
     if duplicatas > 0:
@@ -48,9 +42,7 @@ def remover_duplicatas(df: pd.DataFrame) -> pd.DataFrame:
         print("Nenhuma linha duplicada encontrada.")
         return df
 
-# ==========================
-# REMOVER OUTLIERS
-# ==========================
+
 def remover_outliers(df: pd.DataFrame, coluna):
     Q1 = df[coluna].quantile(0.25)
     Q3 = df[coluna].quantile(0.75)
@@ -60,9 +52,7 @@ def remover_outliers(df: pd.DataFrame, coluna):
     df_sem_outliers = df[(df[coluna] >= lim_inf) & (df[coluna] <= lim_sup)]
     return df_sem_outliers
 
-# ==========================
-# DISCRETIZAR VARIÁVEL ALVO
-# ==========================
+
 def discretizar_variavel_alvo(df: pd.DataFrame) -> pd.DataFrame:
     df_discretizado = df.copy()
     bins = [0, 40, 70, 90, 101]
@@ -76,9 +66,7 @@ def discretizar_variavel_alvo(df: pd.DataFrame) -> pd.DataFrame:
     print("Coluna 'performance_class' criada a partir de 'exam_score'.")
     return df_discretizado
 
-# ==========================
-# DICIONÁRIO DE DADOS
-# ==========================
+
 def obter_dicionario_de_dados() -> pd.DataFrame:
     lista_de_variaveis = [
         {"variavel": "student_id", "descricao": "Identificador único para cada estudante.", "tipo": "qualitativa", "subtipo": "nominal"},
@@ -101,18 +89,14 @@ def obter_dicionario_de_dados() -> pd.DataFrame:
     ]
     return pd.DataFrame(lista_de_variaveis)
 
-# ==========================
-# SALVAR ARQUIVO PROCESSADO
-# ==========================
+
 def salvar_dataframe_processado(df: pd.DataFrame) -> None:
     proj_root = os.path.abspath(os.path.join(os.getcwd(), ".."))
     caminho_dados = os.path.join(proj_root, "dados", "student_habits_preprocessed.csv")
     df.to_csv(caminho_dados, index=False)
     print(f"Arquivo salvo em: {caminho_dados}")
 
-# ==========================
-# PIPELINE COMPLETO
-# ==========================
+
 def executar_pre_processamento_completo(caminho_ou_url: str) -> pd.DataFrame:
     df = carregar_dados(caminho_ou_url)
     if df is None:
