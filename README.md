@@ -74,6 +74,8 @@ Após termos instalados nossa biblioteca e estando numa venv, podemos iniciar re
 3. Rode o arquivo 03_analise_bivariada.ipynb para obter a explicação detalhada da análise bivariada.
 4. Rode o arquivo 04_implementacao_pca_multi.ipynb para obter a explicação detalhada do PCA.
 
+Além dos notebooks, implementamos nossos resultados gerais no artigo presente na pasta _docs_ , caso queira entrar em detalhes sobre as funções usadas, existem comentários nos arquivos pyton.
+
 ## 5. Método de trabalho
 
 Decidimos fazer uma divisão parcial e não total das atividades pedidas. Dessa forma cada pessoa focou em desenvolver um modelo "esqueleto" de cada uma das 4 partes principais, ficando essa divisão:
