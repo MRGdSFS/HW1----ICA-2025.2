@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import skew
 
-
 def carregar_dados(caminho_ou_url: str) -> pd.DataFrame:
     try:
         df = pd.read_csv(caminho_ou_url)
@@ -14,7 +13,6 @@ def carregar_dados(caminho_ou_url: str) -> pd.DataFrame:
     except Exception as e:
         print(f"Erro ao carregar os dados: {e}")
         return None
-
 
 def tratar_dados_faltantes(df: pd.DataFrame) -> pd.DataFrame:
     df_tratado = df.copy()
@@ -31,7 +29,6 @@ def tratar_dados_faltantes(df: pd.DataFrame) -> pd.DataFrame:
                 print(f"Nulos em '{coluna}' preenchidos com MODA: '{moda}'")
     return df_tratado
 
-
 def remover_duplicatas(df: pd.DataFrame) -> pd.DataFrame:
     duplicatas = df.duplicated().sum()
     if duplicatas > 0:
@@ -42,7 +39,6 @@ def remover_duplicatas(df: pd.DataFrame) -> pd.DataFrame:
         print("Nenhuma linha duplicada encontrada.")
         return df
 
-
 def remover_outliers(df: pd.DataFrame, coluna):
     Q1 = df[coluna].quantile(0.25)
     Q3 = df[coluna].quantile(0.75)
@@ -51,7 +47,6 @@ def remover_outliers(df: pd.DataFrame, coluna):
     lim_sup = Q3 + 1.5 * IQR
     df_sem_outliers = df[(df[coluna] >= lim_inf) & (df[coluna] <= lim_sup)]
     return df_sem_outliers
-
 
 def discretizar_variavel_alvo(df: pd.DataFrame) -> pd.DataFrame:
     df_discretizado = df.copy()
@@ -65,7 +60,6 @@ def discretizar_variavel_alvo(df: pd.DataFrame) -> pd.DataFrame:
     )
     print("Coluna 'performance_class' criada a partir de 'exam_score'.")
     return df_discretizado
-
 
 def obter_dicionario_de_dados() -> pd.DataFrame:
     lista_de_variaveis = [
@@ -89,13 +83,11 @@ def obter_dicionario_de_dados() -> pd.DataFrame:
     ]
     return pd.DataFrame(lista_de_variaveis)
 
-
 def salvar_dataframe_processado(df: pd.DataFrame) -> None:
     proj_root = os.path.abspath(os.path.join(os.getcwd(), ".."))
     caminho_dados = os.path.join(proj_root, "dados", "student_habits_preprocessed.csv")
     df.to_csv(caminho_dados, index=False)
     print(f"Arquivo salvo em: {caminho_dados}")
-
 
 def executar_pre_processamento_completo(caminho_ou_url: str) -> pd.DataFrame:
     df = carregar_dados(caminho_ou_url)
